@@ -113,4 +113,21 @@ class WC_EnviaMX_Handling_Fee_Settings {
         </tr>
         <?php
     }
+
+        /**
+     * Agregar notificación de compatibilidad con HPOS
+     */
+    public function add_hpos_notice() {
+        if (class_exists('Automattic\WooCommerce\Utilities\FeaturesUtil') && 
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled('custom_order_tables')) {
+            ?>
+            <div class="notice notice-success">
+                <p>
+                    <strong>✅ Compatible con HPOS:</strong> 
+                    <?php _e('Este plugin es compatible con High-Performance Order Storage.', 'wc-enviamx-handling-fee'); ?>
+                </p>
+            </div>
+            <?php
+        }
+    }
 }

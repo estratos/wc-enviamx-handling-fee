@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce envia.mx Handling Fee
  * Plugin URI: https://tu-sitio.com
  * Description: Agrega un costo de manejo adicional a los envíos de envia.mx sin mostrarlo al cliente
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Tu Nombre
  * Text Domain: wc-enviamx-handling-fee
  * Domain Path: /languages
@@ -16,7 +16,7 @@
 defined('ABSPATH') || exit;
 
 // Definir constantes del plugin
-define('WC_ENVIAMX_HANDLING_FEE_VERSION', '1.0.0');
+define('WC_ENVIAMX_HANDLING_FEE_VERSION', '1.0.1');
 define('WC_ENVIAMX_HANDLING_FEE_PLUGIN_FILE', __FILE__);
 define('WC_ENVIAMX_HANDLING_FEE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WC_ENVIAMX_HANDLING_FEE_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -39,6 +39,13 @@ function wc_enviamx_handling_fee_missing_woocommerce_notice() {
     </div>
     <?php
 }
+
+// Declarar compatibilidad con HPOS
+add_action('before_woocommerce_init', function() {
+    if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    }
+});
 
 // Cargar clases del plugin
 add_action('plugins_loaded', 'wc_enviamx_handling_fee_init');
@@ -66,6 +73,9 @@ function wc_enviamx_handling_fee_activate() {
     add_option('wc_enviamx_handling_fee_amount', '50');
     add_option('wc_enviamx_handling_fee_type', 'fixed');
     add_option('wc_enviamx_handling_fee_enabled', 'yes');
+    
+    // Actualizar versión
+    update_option('wc_enviamx_handling_fee_version', WC_ENVIAMX_HANDLING_FEE_VERSION);
 }
 
 /**
@@ -78,4 +88,18 @@ function wc_enviamx_handling_fee_deactivate() {
     // delete_option('wc_enviamx_handling_fee_amount');
     // delete_option('wc_enviamx_handling_fee_type');
     // delete_option('wc_enviamx_handling_fee_enabled');
+}
+
+/**
+ * Actualizar el plugin si es necesario
+ */
+add_action('plugins_loaded', 'wc_enviamx_handling_fee_update');
+
+function wc_enviamx_handling_fee_update() {
+    $current_version = get_option('wc_enviamx_handling_fee_version', '1.0.0');
+    
+    if (version_compare($current_version, WC_ENVIAMX_HANDLING_FEE_VERSION, '<')) {
+        // Aquí puedes agregar rutinas de actualización si son necesarias
+        update_option('wc_enviamx_handling_fee_version', WC_ENVIAMX_HANDLING_FEE_VERSION);
+    }
 }
